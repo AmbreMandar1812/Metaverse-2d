@@ -16,6 +16,7 @@ router.post("/signup", async (req, res) => {
     const parsedData = SignupSchema.safeParse(req.body)
     if (!parsedData.success) {
         console.log("parsed data incorrect")
+        
         res.status(400).json({message: "Validation failed"})
         return
     }
@@ -81,7 +82,7 @@ router.post("/signin", async (req, res) => {
 router.get("/elements", async (req, res) => {
     const elements = await client.element.findMany()
 
-    res.json({elements: elements.map(e => ({
+    res.json({elements: elements.map((e: { id: string; imageUrl: string; width: number; height: number; static: boolean }) => ({
         id: e.id,
         imageUrl: e.imageUrl,
         width: e.width,
@@ -92,7 +93,7 @@ router.get("/elements", async (req, res) => {
 
 router.get("/avatars", async (req, res) => {
     const avatars = await client.avatar.findMany()
-    res.json({avatars: avatars.map(x => ({
+    res.json({avatars: avatars.map((x: {id: string, imageUrl: string | null , name: string | null}) => ({
         id: x.id,
         imageUrl: x.imageUrl,
         name: x.name

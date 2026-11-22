@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import  { useEffect, useRef, useState } from 'react';
 
 const Arena = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const canvasRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wsRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [currentUser, setCurrentUser] = useState<any>({});
   const [users, setUsers] = useState(new Map());
   const [params, setParams] = useState({ token: '', spaceId: '' });
@@ -27,7 +30,7 @@ const Arena = () => {
         }
       }));
     };
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     wsRef.current.onmessage = (event: any) => {
       const message = JSON.parse(event.data);
       handleWebSocketMessage(message);
@@ -40,9 +43,10 @@ const Arena = () => {
     };
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebSocketMessage = (message: any) => {
     switch (message.type) {
-      case 'space-joined':
+      case 'space-joined': {
         // Initialize current user position and other users
         console.log("set")
         console.log({
@@ -58,11 +62,13 @@ const Arena = () => {
         
         // Initialize other users from the payload
         const userMap = new Map();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         message.payload.users.forEach((user: any) => {
           userMap.set(user.userId, user);
         });
         setUsers(userMap);
         break;
+      }
 
       case 'user-joined':
         setUsers(prev => {
@@ -76,7 +82,7 @@ const Arena = () => {
         });
         break;
 
-      case 'movement':
+      case 'movement': {
         setUsers(prev => {
           const newUsers = new Map(prev);
           const user = newUsers.get(message.payload.userId);
@@ -88,9 +94,11 @@ const Arena = () => {
           return newUsers;
         });
         break;
+      }
 
       case 'movement-rejected':
         // Reset current user position if movement was rejected
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setCurrentUser((prev: any) => ({
           ...prev,
           x: message.payload.x,
@@ -109,6 +117,7 @@ const Arena = () => {
   };
 
   // Handle user movement
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMove = (newX: any, newY: any) => {
     if (!currentUser) return;
     
@@ -182,6 +191,7 @@ const Arena = () => {
     });
   }, [currentUser, users]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleKeyDown = (e: any) => {
     if (!currentUser) return;
 

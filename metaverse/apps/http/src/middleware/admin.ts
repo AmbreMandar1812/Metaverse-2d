@@ -4,8 +4,8 @@ import { JWT_PASSWORD } from "../config";
 import { NextFunction, Request, Response } from "express";
 
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const header = req.headers["authorization"];
-    const token = header?.split(" ")[1];
+    const header = req.headers["authorization"];   // req -> 'Bearer token'
+    const token = header?.split(" ")[1];  // split function converts the headers request from string to arrays and therefore we access the element through indexing 
     
     if (!token) {
         res.status(403).json({message: "Unauthorized"})

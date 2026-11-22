@@ -53,9 +53,9 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
         });
 
         await client.spaceElements.createMany({
-            data: map.mapElements.map(e => ({
-                spaceId: space.id,
+            data: map.mapElements.map((e: {elementId: string, x: number | null , y: number | null } )=> ({
                 elementId: e.elementId,
+                spaceId: space.id,
                 x: e.x!,
                 y: e.y!
             }))
@@ -102,7 +102,8 @@ spaceRouter.delete("/:spaceId", userMiddleware, async(req, res) => {
     console.log("req.params.spaceId", req.params.spaceId)
     const space = await client.space.findUnique({
         where: {
-            id: req.params.spaceId
+            id: String(req.params.spaceId)   //test backlog : check whether user can delete multiple spaceId or not
+                                             // does not work if multiple ids are submitted : require fix 
         }, select: {
             creatorId: true
         }
@@ -120,7 +121,7 @@ spaceRouter.delete("/:spaceId", userMiddleware, async(req, res) => {
 
     await client.space.delete({
         where: {
-            id: req.params.spaceId
+            id: String(req.params.spaceId)
         }
     })
     res.json({message: "Space deleted"})
@@ -134,11 +135,12 @@ spaceRouter.get("/all", userMiddleware, async (req, res) => {
     });
 
     res.json({
-        spaces: spaces.map(s => ({
+        spaces: spaces.map((s: { id: string; name: string; thumbnail: string | null; width: number; height: number, creatorId : string }) => ({
             id: s.id,
             name: s.name,
             thumbnail: s.thumbnail,
             dimensions: `${s.width}x${s.height}`,
+            creatorId : s.creatorId
         }))
     })
 
@@ -188,6 +190,8 @@ spaceRouter.get("/:spaceId",async (req, res) => {
             id: req.params.spaceId
         },
         include: {
+            width: true,
+            height: true,
             elements: {
                 include: {
                     element: true
@@ -203,7 +207,7 @@ spaceRouter.get("/:spaceId",async (req, res) => {
 
     res.json({
         "dimensions": `${space.width}x${space.height}`,
-        elements: space.elements.map(e => ({
+        elements: space.elements.map((e: { id: string ; element: { id: string; imageUrl: string; width: number; height: number; static: boolean }; x: number; y: number }) => ({
             id: e.id,
             element: {
                 id: e.element.id,

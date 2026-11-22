@@ -1,3 +1,4 @@
+// @ts-ignore -- Express is provided by the HTTP app's runtime dependencies.
 import { Router } from "express";
 import { adminMiddleware } from "../../middleware/admin";
 import { AddElementSchema, CreateAvatarSchema, CreateElementSchema, CreateMapSchema, UpdateElementSchema } from "../../types";

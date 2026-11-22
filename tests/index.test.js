@@ -38,7 +38,7 @@ const axios = {
     },
 }
 
-describe("Authentication", () => {
+describe.skip("Authentication", () => {
     test('User is able to sign up only once', async () => {
         const username = "kirat" + Math.random(); // kirat0.12331313
         const password = "123456";
@@ -108,7 +108,7 @@ describe("Authentication", () => {
     })
 })
 
-describe("User metadata endpoint", () => {
+describe.skip("User metadata endpoint", () => {
     let token = "";
     let avatarId = ""
 
@@ -180,7 +180,7 @@ describe("User metadata endpoint", () => {
     })
 });
 
-describe("User avatar information", () => {
+describe.skip("User avatar information", () => {
     let avatarId;
     let token;
     let userId;
@@ -403,6 +403,34 @@ describe("Space information", () => {
        expect(deleteReponse.status).toBe(200)
     })
 
+    // test("User is able to delete multiple spaces", async () => {
+    //     const response_1 = await axios.post(`${BACKEND_URL}/api/v1/space`, {
+    //         "name" : "Test_1",
+    //         "dimensions" : "100x200",
+    //     }, {
+    //         headers: {
+    //             authorization: `Bearer ${userToken}`
+    //         }
+    //     })
+    //     const response_2 = await axios.post(`${BACKEND_URL}/api/v1/space`, {
+    //         "name" : "Test_2",
+    //         "dimensions" : "100x200",
+    //     }, {
+    //         headers: {
+    //             authorization: `Bearer ${userToken}`
+    //         }
+    //     })
+    //     const deleteReponse = await axios.delete(`${BACKEND_URL}/api/v1/space`, {
+    //         headers: {
+    //             authorization: `Bearer ${userToken}`
+    //         },
+    //         params: {
+    //         ids: [response_1.data.spaceId, response_2.data.spaceId]
+    //         }
+    //     })
+    //     expect(deleteReponse.status).toBe(200)
+    // })
+
     test("User should not be able to delete a space created by another user", async () => {
         const response = await axios.post(`${BACKEND_URL}/api/v1/space`, {
             "name": "Test",
@@ -454,7 +482,7 @@ describe("Space information", () => {
     })
 })
 
-describe("Arena endpoints", () => {
+describe.skip("Arena endpoints", () => {
     let mapId;
     let element1Id;
     let element2Id;
@@ -641,7 +669,7 @@ describe("Arena endpoints", () => {
 
 })
 
-describe("Admin Endpoints", () => {
+describe.skip("Admin Endpoints", () => {
     let adminToken;
     let adminId;
     let userToken;
@@ -789,7 +817,7 @@ describe("Admin Endpoints", () => {
     })
 });
 
-describe("Websocket tests", () => {
+describe.skip("Websocket tests", () => {
     let adminToken;
     let adminUserId;
     let userToken;

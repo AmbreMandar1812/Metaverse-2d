@@ -25,6 +25,10 @@ export const DeleteElementSchema = z.object({
     id: z.string(),
 })
 
+export const DeleteUserSchema = z.object({
+    id: z.string()
+})
+
 export const AddElementSchema = z.object({
     spaceId: z.string(),
     elementId: z.string(),
