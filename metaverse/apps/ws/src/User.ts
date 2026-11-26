@@ -20,6 +20,8 @@ export class User {
     private spaceId?: string;
     private x: number;
     private y: number;
+    private width = 0;
+    private height = 0;
     private ws: WebSocket;
 
     constructor(ws: WebSocket) {
@@ -33,6 +35,7 @@ export class User {
     initHandlers() {
         this.ws.on("message", async (data) => {
             console.log(data)
+            //message can be join/
             const parsedData = JSON.parse(data.toString());
             console.log(parsedData)
             console.log("parsedData")
@@ -60,6 +63,8 @@ export class User {
                         this.ws.close()
                         return;
                     }
+                    this.width = space.width;
+                    this.height = space.height;
                     console.log("jouin receiverdfd 4")
                     this.spaceId = spaceId
                     RoomManager.getInstance().addUser(spaceId, this);
@@ -68,11 +73,12 @@ export class User {
                     this.send({
                         type: "space-joined",
                         payload: {
+                            userId: this.userId,
                             spawn: {
                                 x: this.x,
                                 y: this.y
                             },
-                            users: RoomManager.getInstance().rooms.get(spaceId)?.filter(x => x.id !== this.id)?.map((u) => ({id: u.id})) ?? []
+                            users: RoomManager.getInstance().rooms.get(spaceId)?.filter(x => x.id !== this.id)?.map((u) => u.toRoomUser()) ?? []
                         }
                     });
                     console.log("jouin receiverdf5")
@@ -90,12 +96,24 @@ export class User {
                     const moveY = parsedData.payload.y;
                     const xDisplacement = Math.abs(this.x - moveX);
                     const yDisplacement = Math.abs(this.y - moveY);
-                    if ((xDisplacement == 1 && yDisplacement== 0) || (xDisplacement == 0 && yDisplacement == 1)) {
+                    const users = RoomManager.getInstance().rooms.get(this.spaceId!)?.filter(x => x.id !== this.id) ?? []
+                    const new_arr = users.filter((user) =>
+                        user.x === moveX && user.y === moveY
+                    );
+                    if (
+                        moveX >= 0 &&
+                        moveY >= 0 &&
+                        moveX < this.width &&
+                        moveY < this.height &&
+                        ((xDisplacement == 1 && yDisplacement == 0) || (xDisplacement == 0 && yDisplacement == 1)) &&
+                        !new_arr.length
+                    ) {
                         this.x = moveX;
                         this.y = moveY;
                         RoomManager.getInstance().broadcast({
                             type: "movement",
                             payload: {
+                                userId: this.userId,
                                 x: this.x,
                                 y: this.y
                             }
@@ -116,6 +134,9 @@ export class User {
     }
 
     destroy() {
+        if (!this.spaceId) {
+            return;
+        }
         RoomManager.getInstance().broadcast({
             type: "user-left",
             payload: {
@@ -127,5 +148,13 @@ export class User {
 
     send(payload: OutgoingMessage) {
         this.ws.send(JSON.stringify(payload));
+    }
+
+    toRoomUser() {
+        return {
+            userId: this.userId ?? this.id,
+            x: this.x,
+            y: this.y
+        };
     }
 }

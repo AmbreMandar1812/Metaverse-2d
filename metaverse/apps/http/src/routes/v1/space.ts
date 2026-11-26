@@ -119,10 +119,17 @@ spaceRouter.delete("/:spaceId", userMiddleware, async(req, res) => {
         return
     }
 
-    await client.space.delete({
-        where: {
-            id: String(req.params.spaceId)
-        }
+    await client.$transaction(async (tx) => {
+        await tx.spaceElements.deleteMany({
+            where: {
+                spaceId: String(req.params.spaceId)
+            }
+        })
+        await tx.space.delete({
+            where: {
+                id: String(req.params.spaceId)
+            }
+        })
     })
     res.json({message: "Space deleted"})
 })
@@ -163,13 +170,13 @@ spaceRouter.post("/element", userMiddleware, async (req, res) => {
         }
     })
 
-    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width! || req.body.y > space?.height!) {
-        res.status(400).json({message: "Point is outside of the boundary"})
+    if (!space) {
+        res.status(400).json({message: "Space not found"})
         return
     }
 
-    if (!space) {
-        res.status(400).json({message: "Space not found"})
+    if(req.body.x < 0 || req.body.y < 0 || req.body.x >= space.width || req.body.y >= space.height) {
+        res.status(400).json({message: "Point is outside of the boundary"})
         return
     }
     await client.spaceElements.create({
@@ -184,12 +191,16 @@ spaceRouter.post("/element", userMiddleware, async (req, res) => {
     res.json({message: "Element added"})
 })
 
-spaceRouter.get("/:spaceId",async (req, res) => {
+spaceRouter.get("/:spaceId", userMiddleware, async (req, res) => {
     const space = await client.space.findUnique({
         where: {
-            id: req.params.spaceId
+            id: String(req.params.spaceId)
         },
-        include: {
+        select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+            creatorId: true,
             width: true,
             height: true,
             elements: {
@@ -206,6 +217,10 @@ spaceRouter.get("/:spaceId",async (req, res) => {
     }
 
     res.json({
+        id: space.id,
+        name: space.name,
+        thumbnail: space.thumbnail,
+        creatorId: space.creatorId,
         "dimensions": `${space.width}x${space.height}`,
         elements: space.elements.map((e: { id: string ; element: { id: string; imageUrl: string; width: number; height: number; static: boolean }; x: number; y: number }) => ({
             id: e.id,
